@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Logging {
+  id        String @default(cuid()) @id
+  SYMBOL     String
+  INVESTMENT   Float
+  GENERATIONDATE DateTime @default(now())
+}
+
+model Opening_Average {
+  id        String @default(cuid()) @id
+  SYMBOL     String
+  AVERAGE   Float
+  GENERATIONDATE DateTime @default(now())
+}
+
+model Results {
+  id        String @default(cuid()) @id
+  QUERY    String
+  SYMBOL    String
+  NUMBERCOINS   Float
+  PROFIT   Float
+  GROWTHFACTOR   Float
+  LAMBOS   Float
+  INVESTMENT   Float
+  GENERATIONDATE DateTime @default(now())
+}

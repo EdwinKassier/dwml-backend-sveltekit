@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  sveltekit:
+    container_name: sveltekit
+    build: .
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      PORT: 3000
