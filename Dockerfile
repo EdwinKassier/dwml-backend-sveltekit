@@ -1,16 +1,16 @@
 #!/bin/bash
 FROM --platform=linux/amd64 node:lts-alpine as builder
-WORKDIR /app
 #Installing pnpm as default paackage manager
 RUN npm i -g pnpm
 COPY package.json pnpm-lock.yaml ./
-COPY . .
 RUN pnpm install
-COPY . .
-RUN pnpm install vite-plugin-svelte-inspector
+
+RUN pnpm install @esbuild/linux-x64
 
 # Copy over rest of the project files
 COPY . .
+
+RUN npx prisma generate 
 
 RUN pnpm run build
 
