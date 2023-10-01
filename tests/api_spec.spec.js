@@ -2,9 +2,14 @@ import { test, expect } from '@playwright/test'
  
 test('UI render test', async ({ page }) => {
   // Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
-  await page.goto('/')
-  // The new page should contain an h1 with "About Page"
-  await expect(page.getByText("Express server is running")).toContainText("Express server is running")
+  await page.goto('/');
+  // Get the text content of the h1 element
+  const h1Text = await page.textContent('h1');
+
+  // Define the expected text
+  const expectedText = "Welcome to Edwin's SvelteKit API";
+
+  expect(h1Text).toContain(expectedText);
 })
 
 

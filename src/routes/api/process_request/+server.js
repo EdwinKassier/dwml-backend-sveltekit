@@ -9,25 +9,17 @@ export async function GET({ url }) {
     console.log(url)
     // Extract query parameters from the request
     const urlParams = new URLSearchParams(url.searchParams);
-    const symbol = urlParams.get('symbol') ?? undefined;
-	  const investment = parseFloat(urlParams.get('investment')) ?? undefined;
+    const symbol = urlParams.get('symbol') ?? "";
+	  const investment = parseFloat(urlParams.get('investment')) ?? "";
 
     console.log('Request Body', urlParams.get('symbol'))
 
-    if (symbol == undefined ){
+    if (symbol == "" ){
       return json({"result":"Symbol doesn't exist","graph_data":"Symbol doesn't exist"});
     }
 
-    if (investment== undefined){
+    if (investment=="" || typeof investment == 'string'){
       return json({"result":"Invalid investment amount","graph_data":"Invalid investment amount"});
-    }
-
-    // Check if symbol and investment are provided
-    if (!symbol || isNaN(investment)) {
-      return {
-        status: 400, // Bad Request
-        body: { error: 'Invalid request data' },
-      };
     }
 
     // Create instances of your utility classes
@@ -36,11 +28,16 @@ export async function GET({ url }) {
     const creator = new GraphCreator(symbol, investment);
 
     // Perform the necessary logic
-    const result = await collector.driverLogic();
-    const graph_data = await creator.driver_logic();
+    let result = await collector.driverLogic();
+    let graph_data = await creator.driver_logic();
 
     // Log the result (optional)
     console.log(`Received result: ${result}`);
+
+    if (result == undefined){
+      result = "Symbol doesn't exist"
+      graph_data = "Symbol doesn't exist"
+    }
 
     // Return a JSON response
     return json({ result: result,graph_data:graph_data })
