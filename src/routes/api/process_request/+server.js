@@ -4,14 +4,23 @@ import DataCache from '$utils/data_cache.js';
 import DataCollector from '$utils/data_collector.js';
 import GraphCreator from '$utils/graph_creator.js';
 
-export async function GET({ request, cookies }) {
+export async function GET({ url }) {
   try {
+    console.log(url)
     // Extract query parameters from the request
-    const requestBody = await request.text();
-    let symbol = 'ETH'
-    let investment = 200
+    const urlParams = new URLSearchParams(url.searchParams);
+    const symbol = urlParams.get('symbol') ?? undefined;
+	  const investment = parseFloat(urlParams.get('investment')) ?? undefined;
 
-    console.log(requestBody)
+    console.log('Request Body', urlParams.get('symbol'))
+
+    if (symbol == undefined ){
+      return json({"result":"Symbol doesn't exist","graph_data":"Symbol doesn't exist"});
+    }
+
+    if (investment== undefined){
+      return json({"result":"Invalid investment amount","graph_data":"Invalid investment amount"});
+    }
 
     // Check if symbol and investment are provided
     if (!symbol || isNaN(investment)) {
