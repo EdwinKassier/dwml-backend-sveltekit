@@ -28,7 +28,7 @@ export async function GET({ url }) {
     const creator = new GraphCreator(symbol, investment);
 
     // Perform the necessary logic
-    let result = await collector.driverLogic();
+    let result = await collector.driver_logic();
     let graph_data = await creator.driver_logic();
 
     // Log the result (optional)

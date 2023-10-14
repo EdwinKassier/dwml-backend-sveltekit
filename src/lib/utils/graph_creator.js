@@ -1,9 +1,8 @@
 import * as dataForge from 'data-forge';
 
 class GraphCreator {
-  constructor(coinSymbol, investment) {
+  constructor(coinSymbol) {
     this.coin_symbol = coinSymbol;
-    this.investment = investment;
   }
 
   async convert_result_to_pd(raw) {
@@ -14,9 +13,15 @@ class GraphCreator {
       //Convert raw response to a json representation
       const data =await raw.json();
 
+      console.log(data)
+
       const keysWithUSD = Object.keys(data.result).filter(key => key.includes('USD'));
 
+      console.log(`target key is ${keysWithUSD}`)
+
       let target_data =data["result"][keysWithUSD]
+
+      console.log(`target data is ${target_data}`)
 
       //Create a danfo dataframe from the json result
 
@@ -84,7 +89,8 @@ class GraphCreator {
       const check_symbol = await response.json();
 
       if (
-        check_symbol["error"].toString() !== ""
+        "error" in check_symbol &&
+        check_symbol.error === "Instrument not found"
       ) {
         return false;
       }
@@ -102,14 +108,9 @@ class GraphCreator {
 
     try{
 
-      if (await this.check_symbol_exists_on_exchange() == false) {
-        return "Symbol doesn't exist";
-      }
-
-      if (isNaN(this.investment) || this.investment === 0){
-        return "Invalid investment amount"
-      }
-        
+        if (this.check_symbol_exists_on_exchange() == false){
+            return "Symbol doesn\'t exist"
+        }
         console.log('We should query the api')
 
         //Creating timestamps for the time period before the coin was listed and
@@ -118,8 +119,8 @@ class GraphCreator {
 
         //generating request urls to REST api
         const response = await fetch(
-          `https://api.kraken.com/0/public/OHLC?pair=${this.coin_symbol}USD&interval=21600&since=1548111600`
-        );
+            `https://api.kraken.com/0/public/OHLC?pair=${this.coin_symbol}USD&interval=21600&since=1548111600`
+          );
 
         //create pandas dataframe for the price data at the moment
         let data_frame = await this.convert_result_to_pd(response)
