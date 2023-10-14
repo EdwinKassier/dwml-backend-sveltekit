@@ -14,11 +14,13 @@ class GraphCreator {
       //Convert raw response to a json representation
       const data =await raw.json();
 
-      //console.log(data)
+      const keysWithUSD = Object.keys(data.result).filter(key => key.includes('USD'));
+
+      let target_data =data["result"][keysWithUSD]
 
       //Create a danfo dataframe from the json result
 
-      const df = new dataForge.DataFrame(data["result"]["604800"])
+      const df = new dataForge.DataFrame(target_data)
       /*
       const df = new dfd.DataFrame(data["result"]["604800"], {
         columns: [
@@ -39,28 +41,33 @@ class GraphCreator {
         "2": "HighPrice",
         "3": "LowPrice",
         "4": "ClosePrice",
-        "5": "Volume",
-        "6": "NA"
+        "5": "VWap",
+        "6": "Volume",
+        "7": "Count"
         });
 
-        var new_date_df = renamed_df.map(
-
-          (item)=> { 
-          
-            // Parsing unix timestamp to date
-          
-            const newDate = new Date(item.CloseTime* 1000)
-
-          
-            return {...item, CloseTime:newDate}
-          
-          });
-
+        
+        let new_date_df = renamed_df.generateSeries({
+            CloseTime: row => new Date(parseInt(row.CloseTime)).toISOString(),
+            ClosePrice: row => parseFloat(row.ClosePrice)
+        });
+        
 
       const columnNames = new_date_df.getColumnNames();
       console.log(columnNames);
 
-    
+      //console.log(console.log(df.toString()))
+
+      
+
+      //Make a date out of CloseTime
+      //df["CloseTime"] = df["CloseTime"].map(d => new Date(d));
+      //console.log(df["CloseTime"].values)
+
+      //make CloseTime Index of the data_frame
+      //df.setIndex({column: "CloseTime", inplace: true})
+
+      //df.print()
       return new_date_df;
     } catch (err) {
       console.log(err);
@@ -72,14 +79,12 @@ class GraphCreator {
 
     try {
       const response = await fetch(
-        `https://api.cryptowat.ch/markets/kraken/${this.coin_symbol}usd/price`,
-        { timeout: 10000 }
+        `https://api.kraken.com/0/public/OHLC?pair=${this.coin_symbol}USD&interval=21600&since=1548111600`
       );
       const check_symbol = await response.json();
 
       if (
-        "error" in check_symbol &&
-        check_symbol.error === "Instrument not found"
+        check_symbol["error"].toString() !== ""
       ) {
         return false;
       }
@@ -87,8 +92,9 @@ class GraphCreator {
       return true;
     } catch (err) {
       console.log(err);
-      return false;
     }
+
+    return false;
   }
 
   async driver_logic(){
@@ -106,26 +112,21 @@ class GraphCreator {
         
         console.log('We should query the api')
 
-        //Converting coin symbol to the lowercase version of itself
-        let coin_symbol = this.coin_symbol.toLowerCase();
-
         //Creating timestamps for the time period before the coin was listed and
         const from_date = Math.floor((Date.now() - 1000 * 60 * 60 * 24 * 7 * 1080) / 1000);
         // const today_date = int( (datetime.now() - timedelta(weeks=12)).timestamp())
 
         //generating request urls to REST api
         const response = await fetch(
-            `https://api.cryptowat.ch/markets/kraken/${coin_symbol}usd/ohlc?` +
-              new URLSearchParams({ after: from_date, periods: "604800" }),
-            { timeout: 10000 }
-          );
+          `https://api.kraken.com/0/public/OHLC?pair=${this.coin_symbol}USD&interval=21600&since=1548111600`
+        );
 
         //create pandas dataframe for the price data at the moment
         let data_frame = await this.convert_result_to_pd(response)
 
         //Remove two columns name is 'C' and 'D'
         let interim_df = data_frame.dropSeries(['OpenPrice', 'HighPrice',
-        'LowPrice', 'Volume', 'NA']);
+        'LowPrice', 'Volume', 'VWap', 'Count']);
 
         //Rename columns for frontend
         let final_df = interim_df.renameSeries({

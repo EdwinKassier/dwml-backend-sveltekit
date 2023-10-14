@@ -62,13 +62,15 @@ class DataCache {
   }
 
   async insertIntoLogging() {
-    const loggingItem = {
-      SYMBOL: this.coinSymbol,
-      INVESTMENT: this.investment,
-      GENERATIONDATE: new Date().toISOString(),
-    };
+    
 
     try {
+      const loggingItem = {
+        SYMBOL: this.coinSymbol,
+        INVESTMENT: this.investment,
+        GENERATIONDATE: new Date().toISOString(),
+      };
+      
       const log = await prisma.logging.create({ data: loggingItem });
       console.log(log + ' was saved to logs');
     } catch (error) {
@@ -79,18 +81,21 @@ class DataCache {
   async insertIntoResult(result) {
     const QUERY = `${this.coinSymbol}-${this.investment}`;
 
-    const resultItem = {
-      QUERY,
-      NUMBERCOINS: parseFloat(result.NUMBERCOINS.toString()),
-      PROFIT: parseFloat(result.PROFIT.toString()),
-      GROWTHFACTOR: parseFloat(result.GROWTHFACTOR.toString()),
-      LAMBOS: parseFloat(result.LAMBOS.toString()),
-      INVESTMENT: this.investment,
-      SYMBOL: this.coinSymbol,
-      GENERATIONDATE: new Date().toISOString(),
-    };
+  
 
     try {
+
+      const resultItem = {
+        QUERY,
+        NUMBERCOINS: parseFloat(result.NUMBERCOINS.toString()),
+        PROFIT: parseFloat(result.PROFIT.toString()),
+        GROWTHFACTOR: parseFloat(result.GROWTHFACTOR.toString()),
+        LAMBOS: parseFloat(result.LAMBOS.toString()),
+        INVESTMENT: this.investment,
+        SYMBOL: this.coinSymbol,
+        GENERATIONDATE: new Date().toISOString(),
+      };
+
       const log = await prisma.results.create({ data: resultItem });
       console.log(log + ' was saved to results');
     } catch (error) {
@@ -99,13 +104,14 @@ class DataCache {
   }
 
   async insertIntoOpeningAverage(result) {
-    const openingAverageItem = {
-      SYMBOL: this.coinSymbol,
-      AVERAGE: parseFloat(result.AVERAGE.toString()),
-      GENERATIONDATE: new Date().toISOString(),
-    };
 
     try {
+      const openingAverageItem = {
+        SYMBOL: this.coinSymbol,
+        AVERAGE: parseFloat(result.AVERAGE.toString()),
+        GENERATIONDATE: new Date().toISOString(),
+      };
+
       const item = await prisma.opening_Average.create({ data: openingAverageItem });
       console.log(item + ' was saved to opening_average');
     } catch (error) {
